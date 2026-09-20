@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AI Shield - Password Security</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #0b1020;
+            color: white;
+            overflow: hidden;
+        }
+
+        body.dashboard-mode { overflow-y: auto; }
+
+        /* NAVBAR */
+        .navbar {
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 7%;
+            border-bottom: 1px solid #252b40;
+            background: #10162a;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .logo span {
+            color: #00d4ff;
+        }
+
+        .status {
+            font-size: 14px;
+            color: #63e6be;
+        }
+
+        /* MAIN */
+        .container {
+            width: 90%;
+            max-width: 1100px;
+            margin: 45px auto;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .hero h1 {
+            font-size: 42px;
+            margin-bottom: 10px;
+        }
+
+        .hero h1 span {
+            color: #00d4ff;
+        }
+
+        .hero p {
+            color: #9ba4bd;
+            font-size: 16px;
+        }
+
+        /* GRID */
+        .grid {
+            display: grid;
+            grid-template-columns: 1.3fr 1fr;
+            gap: 25px;
+        }
+
+        .card {
+            background: #121a30;
+            border: 1px solid #252f48;
+            border-radius: 18px;
+            padding: 28px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+        }
+
+        .card h2 {
+            margin-bottom: 20px;
+        }
+
+        /* PASSWORD BOX */
+        .password-box {
+            position: relative;
+        }
+
+        .password-box input {
+            width: 100%;
+            padding: 16px 90px 16px 16px;
+            border-radius: 10px;
+            border: 1px solid #34405e;
+            background: #0c1325;
+            color: white;
+            outline: none;
+            font-size: 16px;
+        }
+
+        .password-box input:focus {
+            border-color: #00d4ff;
+        }
+
+        .password-actions {
+            position: absolute;
+            right: 10px;
+            top: 9px;
+            display: flex;
+            gap: 5px;
+        }
+
+        .icon-btn {
+            border: none;
+            background: transparent;
+            color: #9ba4bd;
+            cursor: pointer;
+            font-size: 17px;
+            padding: 8px;
+        }
+
+        .icon-btn:hover {
+            color: #00d4ff;
+        }
+
+        /* STRENGTH */
+        .strength-header {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0 10px;
+        }
+
+        #strengthText {
+            font-weight: bold;
+        }
+
+        .meter {
+            height: 10px;
+            background: #29324b;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        #meterFill {
+            height: 100%;
+            width: 0%;
+            transition: 0.3s;
+            background: #ff4757;
+        }
+
+        /* CHECKS */
+        .checks {
+            margin-top: 22px;
+        }
+
+        .check {
+            display: flex;
+            justify-content: space-between;
+            padding: 11px 0;
+            border-bottom: 1px solid #242d44;
+            color: #aab2c5;
+        }
+
+        .pass {
+            color: #63e6be;
+        }
+
+        .fail {
+            color: #ff6b81;
+        }
+
+        /* RISK */
+        .risk-box {
+            padding: 20px;
+            border-radius: 12px;
+            background: #0c1325;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #riskLevel {
+            font-size: 30px;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+
+        .risk-low {
+            color: #63e6be;
+        }
+
+        .risk-medium {
+            color: #ffd166;
+        }
+
+        .risk-high {
+            color: #ff6b81;
+        }
+
+        /* SUGGESTIONS */
+        .suggestions {
+            margin-top: 20px;
+        }
+
+        .suggestion {
+            padding: 12px;
+            margin: 8px 0;
+            background: #19223a;
+            border-radius: 8px;
+            color: #b9c2d6;
+        }
+
+        /* GENERATOR */
+        .generated {
+            display: flex;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .generated input {
+            flex: 1;
+            padding: 14px;
+            border-radius: 8px;
+            border: 1px solid #34405e;
+            background: #0c1325;
+            color: white;
+        }
+
+        button.generate {
+            padding: 14px 18px;
+            border: none;
+            border-radius: 8px;
+            background: #00d4ff;
+            color: #07101e;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button.generate:hover {
+            opacity: 0.85;
+        }
+
+        /* FOOTER */
+        footer {
+            text-align: center;
+            margin: 40px 0 20px;
+            color: #66708a;
+            font-size: 14px;
+        }
+
+        /* MOBILE */
+        @media(max-width: 800px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero h1 {
+                font-size: 32px;
+            }
+
+            .navbar {
+                padding: 0 5%;
+            }
+        }
+
+        .hidden { display: none !important; }
+        .landing { height: calc(100vh - 70px); min-height: 620px; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto auto; align-content: center; align-items: center; gap: 25px 7vw; padding: 28px 7vw; overflow: hidden; background: #f4f7ec; color: #172018; }
+        .landing h1 { max-width: 650px; margin: 16px 0; font: 400 clamp(44px, 5.5vw, 76px)/.98 Georgia, serif; letter-spacing: -2px; }
+        .landing h1 span { color: #237b68; } .landing p { max-width: 520px; color: #68746a; font-size: 18px; line-height: 1.6; }
+        .landing-actions { display: flex; gap: 14px; margin-top: 30px; } .landing .primary { padding: 14px 20px; border: 1px solid #172018; border-radius: 7px; background: #c7f36b; box-shadow: 4px 4px #172018; font-weight: bold; cursor: pointer; }
+        .landing .secondary { padding: 14px 20px; border: 1px solid #172018; border-radius: 7px; background: transparent; font-weight: bold; cursor: pointer; }
+        .landing-art { min-height: 0; height: 260px; display: grid; place-items: center; position: relative; } .landing-art:before { content: ""; position: absolute; width: min(26vw, 280px); aspect-ratio: 1; border: 1px solid #c4d2bd; border-radius: 50%; } .landing-feature-strip { grid-column: 1 / -1; position: relative; display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; } .landing-feature-strip:before { content: ""; position: absolute; top: 22px; left: 10%; right: 10%; height: 2px; background: #b9cdb5; } .landing-feature { position: relative; z-index: 1; min-height: 82px; padding: 12px; border: 1px solid #dce4d5; border-radius: 8px; background: #f4f7ec; text-align: left; cursor: pointer; } .landing-feature:hover { border-color: #237b68; transform: translateY(-3px); } .landing-feature b { display: block; margin-bottom: 6px; color: #237b68; } .landing-feature span { color: #68746a; font-size: 12px; line-height: 1.4; }
+        .art-shield { position: relative; width: 190px; height: 230px; display: grid; place-items: center; clip-path: polygon(50% 0, 91% 15%, 84% 68%, 50% 100%, 16% 68%, 9% 15%); background: #237b68; color: #c7f36b; font-size: 65px; }
+        .login-screen { min-height: calc(100vh - 70px); display: grid; place-items: center; padding: 40px 20px; background: #e7efdd; } .login-card { width: min(430px, 100%); padding: 38px; border: 1px solid #dce4d5; border-radius: 12px; background: white; box-shadow: 12px 12px #c8d7bc; color: #172018; }
+        .login-card h2 { margin: 15px 0 8px; font: 400 36px Georgia, serif; } .login-card p { color: #68746a; line-height: 1.5; } .login-field { display: block; margin-top: 20px; color: #68746a; font-size: 13px; font-weight: bold; }
+        .login-field input { width: 100%; margin-top: 7px; padding: 13px; border: 1px solid #dce4d5; border-radius: 6px; background: #fbfcf8; } .login-submit { width: 100%; margin-top: 24px; padding: 14px; border: 1px solid #172018; border-radius: 7px; background: #c7f36b; font-weight: bold; }
+        .dashboard { display: none; } .dashboard.active { display: grid; grid-template-columns: 220px 1fr; gap: 25px; align-items: start; } .dashboard > .hero, .dashboard > .score-row { grid-column: 1 / -1; }
+        .score-row { display: flex; align-items: center; gap: 20px; padding: 18px; margin-bottom: 0; border-radius: 12px; background: #172018; } .score-circle { display: grid; place-items: center; width: 92px; height: 92px; border: 8px solid #c7f36b; border-radius: 50%; color: white; font-size: 27px; font-weight: bold; flex: 0 0 auto; } .score-row p { color: #b5c2b5; } .score-row strong { color: #c7f36b; } #scoreLabel { display: block; margin-top: 5px; color: white; font-size: 22px; } .score-row.weak .score-circle { border-color: #ff6b81; } .score-row.weak #scoreLabel { color: #ff6b81; } .score-row.medium .score-circle { border-color: #ffd166; } .score-row.medium #scoreLabel { color: #ffd166; } .score-row.strong .score-circle { border-color: #63e6be; } .score-row.strong #scoreLabel { color: #63e6be; }
+        .feature-map { grid-column: 1; grid-row: 3 / span 2; margin-top: 0; padding: 22px 16px; border: 1px solid #252f48; border-radius: 18px; background: #121a30; } .feature-map h2 { margin-bottom: 8px; font-size: 18px; } .feature-map > p { margin-bottom: 20px; color: #66708a; font-size: 12px; line-height: 1.4; } .map-steps { display: grid; grid-template-columns: 1fr; gap: 10px; position: relative; } .map-steps:before { content: ""; position: absolute; top: 20px; bottom: 20px; left: 20px; width: 2px; height: auto; background: #34405e; } .map-step { position: relative; z-index: 1; display: grid; grid-template-columns: 42px 1fr; gap: 10px; align-items: center; width: 100%; padding: 6px 0; border: 0; text-align: left; color: #aab2c5; background: transparent; cursor: pointer; } .map-step:hover strong, .map-step:focus strong { color: #00d4ff; } .map-dot { width: 42px; height: 42px; display: grid; place-items: center; grid-row: span 2; border: 3px solid #121a30; outline: 1px solid #00d4ff; border-radius: 50%; background: #0c1325; color: #00d4ff; font-weight: bold; } .map-step.active .map-dot { background: #00d4ff; color: #07101e; } .map-step small { color: #66708a; }
+        .feature-detail { grid-column: 2; margin-top: 0; padding: 22px 26px; border: 1px solid #252f48; border-radius: 14px; background: #121a30; } .feature-detail h3 { margin-bottom: 8px; color: #00d4ff; } .feature-detail p { max-width: 680px; color: #aab2c5; line-height: 1.6; } .feature-detail strong { color: white; }
+        .topic-nav { grid-column: 1; grid-row: 3 / span 2; align-self: start; padding: 18px 12px; border: 1px solid #252f48; border-radius: 18px; background: #121a30; } .topic-nav h3 { padding: 0 10px 12px; color: white; font-size: 15px; } .topic-nav button { display: block; width: 100%; padding: 11px 10px; border: 0; border-left: 3px solid transparent; color: #aab2c5; background: transparent; text-align: left; cursor: pointer; } .topic-nav button:hover, .topic-nav button.active { border-left-color: #00d4ff; color: #07101e; background: #00d4ff; font-weight: bold; }
+        .page-view { grid-column: 2; grid-row: 5; min-width: 0; } .page-view > .feature-detail { display: none; margin: 0; min-height: 330px; } .page-view > .feature-detail.active { display: block; } .page-view .page-kicker { margin-bottom: 10px; color: #63e6be; font-size: 12px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; } .page-view .page-action { display: inline-block; margin-top: 24px; padding: 11px 15px; border: 0; border-radius: 7px; color: #07101e; background: #00d4ff; font-weight: bold; cursor: pointer; } .dashboard.topic-open > .hero, .dashboard.topic-open > .score-row, .dashboard.topic-open > .grid, .dashboard.topic-open > .grid + section { display: none; } .dashboard.topic-open .topic-nav, .dashboard.topic-open .page-view { grid-row: 1; }
+        .dashboard > .grid { grid-column: 2; grid-row: 3; } .dashboard > .grid + section { grid-column: 2; grid-row: 4; margin-top: 0 !important; }
+        @media(max-width:800px) { .landing { height: calc(100vh - 70px); min-height: 0; grid-template-columns: 1fr; grid-template-rows: auto auto auto; padding: 20px 7%; gap: 10px; overflow: hidden; } .landing h1 { margin: 10px 0; font-size: clamp(34px, 8vw, 54px); } .landing p { font-size: 14px; line-height: 1.4; } .landing-actions { margin-top: 16px; } .landing-art { min-height: 120px; height: 120px; } .art-shield { width: 90px; height: 112px; font-size: 34px; } .landing-art:before { width: 150px; } .landing-art > div[style] { transform: scale(.8); } .landing-feature-strip { grid-template-columns: repeat(5, 1fr); gap: 4px; margin-top: 4px; } .landing-feature-strip:before { display: block; top: 14px; left: 8%; right: 8%; } .landing-feature { min-height: 58px; padding: 7px 5px; } .landing-feature b { margin-bottom: 3px; font-size: 10px; } .landing-feature span { font-size: 9px; line-height: 1.15; } .dashboard.active { display: block; } .topic-nav, .page-view { margin-top: 20px; } .topic-nav button { display: inline-block; width: auto; margin: 3px; border: 1px solid #34405e; border-radius: 6px; } .topic-nav button:hover, .topic-nav button.active { border-color: #00d4ff; } .feature-map { display: none; } .map-steps { grid-template-columns: 1fr; gap: 0; } .map-steps:before { display: block; top: 20px; bottom: 20px; left: 20px; width: 2px; height: auto; } .map-step { display: grid; grid-template-columns: 42px 1fr; gap: 12px; align-items: center; min-height: 66px; text-align: left; } .map-dot { margin: 0; grid-row: span 2; } .map-step small { display: block; } .feature-detail { margin-top: 20px; } }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="logo">
+            🛡️ AI <span>Shield</span>
+        </div>
+
+        <div class="status" style="display:flex;align-items:center;gap:18px;">
+            <span>● Security System Online</span>
+            <button class="icon-btn hidden" id="backButton" onclick="goBack()">Back</button>
+            <button class="icon-btn" onclick="showDashboard()">Open workspace</button>
+        </div>
+    </nav>
+
+    <section class="landing" id="landingPage">
+        <div>
+            <div class="status">THE PASSWORD SECURITY WORKSPACE</div>
+            <h1>Make every password a <span>stronger first line.</span></h1>
+            <p>Check a password, understand its score, improve every weak point, and protect your accounts from one calm, clear workspace.</p>
+            <div class="landing-actions">
+                <button class="primary" onclick="showDashboard()">Check my security →</button>
+                <button class="secondary" onclick="showDashboard()">Explore features</button>
+            </div>
+        </div>
+        <div class="landing-art"><div class="art-shield">✦</div><div style="position:absolute;right:10%;top:18%;padding:10px 14px;border:1px solid #172018;border-radius:20px;background:#c7f36b;color:#172018;font-size:12px;font-weight:bold;">5 clear steps</div><div style="position:absolute;left:5%;bottom:15%;padding:10px 14px;border:1px solid #dce4d5;border-radius:20px;background:white;color:#237b68;font-size:12px;font-weight:bold;">Private by design</div></div>
+        <div class="landing-feature-strip">
+            <button class="landing-feature" onclick="showDashboard()"><b>01 · Check</b><span>Scan password weaknesses instantly.</span></button>
+            <button class="landing-feature" onclick="showDashboard()"><b>02 · Improve</b><span>Get simple, useful suggestions.</span></button>
+            <button class="landing-feature" onclick="showDashboard()"><b>03 · Score</b><span>See Weak, Medium, or Strong clearly.</span></button>
+            <button class="landing-feature" onclick="showDashboard()"><b>04 · Generate</b><span>Create a secure password.</span></button>
+            <button class="landing-feature" onclick="showDashboard()"><b>05 · Protect</b><span>Build safer account habits.</span></button>
+        </div>
+    </section>
+
+    <main class="container dashboard" id="dashboard">
+
+        <!-- HERO -->
+        <section class="hero">
+            <h1>AI <span>Password Shield</span></h1>
+
+            <p>
+                Intelligent password security analysis and risk detection
+            </p>
+        </section>
+
+        <section class="score-row">
+            <div class="score-circle"><span id="scoreValue">0</span></div>
+            <div><strong>AI security score</strong><span id="scoreLabel">Weak password</span><p>Live score based on six password safety checks.</p></div>
+        </section>
+
+
+        <div class="grid">
+
+            <!-- PASSWORD ANALYZER -->
+            <section class="card">
+
+                <h2>Password Analyzer</h2>
+
+                <div class="password-box">
+
+                    <input
+                        type="password"
+                        id="password"
+                        placeholder="Enter your password..."
+                        oninput="analyzePassword()"
+                    >
+
+                    <div class="password-actions">
+
+                        <button
+                            class="icon-btn"
+                            onclick="togglePassword()"
+                            title="Show/Hide"
+                        >
+                            Show
+                        </button>
+
+                        <button
+                            class="icon-btn"
+                            onclick="clearPassword()"
+                            title="Clear"
+                        >
+                            Clear
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- STRENGTH -->
+                <div class="strength-header">
+
+                    <span>Password Strength</span>
+
+                    <span id="strengthText">
+                        Enter Password
+                    </span>
+
+                </div>
+
+                <div class="meter">
+                    <div id="meterFill"></div>
+                </div>
+
+
+                <!-- SECURITY CHECKS -->
+                <div class="checks">
+
+                    <div class="check">
+                        <span>At least 8 characters</span>
+                        <span id="lengthCheck">❌</span>
+                    </div>
+
+                    <div class="check">
+                        <span>Uppercase letter</span>
+                        <span id="upperCheck">❌</span>
+                    </div>
+
+                    <div class="check">
+                        <span>Lowercase letter</span>
+                        <span id="lowerCheck">❌</span>
+                    </div>
+
+                    <div class="check">
+                        <span>Number</span>
+                        <span id="numberCheck">❌</span>
+                    </div>
+
+                    <div class="check">
+                        <span>Special character</span>
+                        <span id="specialCheck">❌</span>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- AI RISK ANALYSIS -->
+            <section class="card">
+
+                <h2>AI Risk Analysis</h2>
+
+                <div class="risk-box">
+
+                    <div>Current Risk Level</div>
+
+                    <div id="riskLevel">
+                        UNKNOWN
+                    </div>
+
+                </div>
+
+
+                <h3>Security Suggestions</h3>
+
+                <div class="suggestions" id="suggestions">
+
+                    <div class="suggestion">
+                        Enter a password to start AI analysis.
+                    </div>
+
+                </div>
+
+            </section>
+
+        </div>
+
+
+        <!-- PASSWORD GENERATOR -->
+        <section class="card" style="margin-top:25px;">
+
+            <h2>Secure Password Generator</h2>
+
+            <p style="color:#9ba4bd;">
+                Generate a strong random password for better security.
+            </p>
+
+            <div class="generated">
+
+                <input
+                    type="text"
+                    id="generatedPassword"
+                    readonly
+                    placeholder="Generated password appears here"
+                >
+
+                <button
+                    class="generate"
+                    onclick="generatePassword()"
+                >
+                    Generate
+                </button>
+
+                <button
+                    class="generate"
+                    onclick="copyPassword()"
+                >
+                    Copy
+                </button>
+
+            </div>
+
+        </section>
+
+        <aside class="topic-nav" id="topicNav">
+            <h3>Security topics</h3>
+            <button class="active" onclick="showPage('overview', this)">Overview</button>
+            <button onclick="showPage('featureCheck', this)">01 · Check</button>
+            <button onclick="showPage('featureImprove', this)">02 · Improve</button>
+            <button onclick="showPage('featureScore', this)">03 · Score</button>
+            <button onclick="showPage('featureGenerate', this)">04 · Generate</button>
+            <button onclick="showPage('featureProtect', this)">05 · Protect</button>
+        </aside>
+
+        <div class="page-view" id="pageView">
+            <section class="feature-detail active" id="overview"><div class="page-kicker">Workspace overview</div><h3>Everything you need to build a stronger password.</h3><p>Choose a topic from the side menu to open its own page. Your analyzer, live score, risk analysis, and generator stay available in Overview.</p><button class="page-action" onclick="showPage('featureCheck', document.querySelector('#topicNav button:nth-child(3)'))">Start with Check →</button></section>
+            <section class="feature-detail" id="featureCheck"><div class="page-kicker">01 · Check</div><h3>Check your password</h3><p>Type a password in the analyzer to check its length, uppercase, lowercase, number, and special-character requirements. The checks update instantly while you type.</p><button class="page-action" onclick="focusPassword()">Open password analyzer →</button></section>
+            <section class="feature-detail" id="featureImprove"><div class="page-kicker">02 · Improve</div><h3>Improve weak points</h3><p>Read the suggestions beside the analyzer. Each message explains exactly what is missing, so you can improve the password without guessing.</p><button class="page-action" onclick="focusSuggestions()">View suggestions →</button></section>
+            <section class="feature-detail" id="featureScore"><div class="page-kicker">03 · Score</div><h3>Understand your score</h3><p>Your score is calculated from six security checks. <strong>0–2 checks = Weak</strong>, <strong>3–4 checks = Medium</strong>, and <strong>5–6 checks = Strong</strong>.</p><button class="page-action" onclick="focusScore()">View live score →</button></section>
+            <section class="feature-detail" id="featureGenerate"><div class="page-kicker">04 · Generate</div><h3>Generate a secure key</h3><p>Use the generator to create a random 16-character password with uppercase letters, lowercase letters, numbers, and symbols.</p><button class="page-action" onclick="focusGenerator()">Open generator →</button></section>
+            <section class="feature-detail" id="featureProtect"><div class="page-kicker">05 · Protect</div><h3>Protect every account</h3><p>Use a different strong password for every account, store it in a trusted password manager, and never share it through messages or email.</p><button class="page-action" onclick="focusSuggestions()">Review protection tips →</button></section>
+        </div>
+
+    </main>
+
+
+    <footer id="siteFooter" class="hidden">
+        AI Shield © 2026 | Intelligent Password Security System
+    </footer>
+
+
+<script>
+
+    function showDashboard() {
+        document.getElementById("landingPage").classList.add("hidden");
+        document.getElementById("dashboard").classList.add("active");
+        document.getElementById("siteFooter").classList.remove("hidden");
+        document.getElementById("backButton").classList.remove("hidden");
+        document.body.classList.add("dashboard-mode");
+        window.scrollTo(0, 0);
+    }
+
+    function goBack() {
+        const dashboard = document.getElementById("dashboard");
+
+        if(dashboard.classList.contains("topic-open")) {
+            showPage("overview", document.querySelector("#topicNav button"));
+            return;
+        }
+
+        dashboard.classList.remove("active");
+        document.getElementById("siteFooter").classList.add("hidden");
+        document.getElementById("landingPage").classList.remove("hidden");
+        document.getElementById("backButton").classList.add("hidden");
+        document.body.classList.remove("dashboard-mode");
+        window.scrollTo(0, 0);
+    }
+
+    function showPage(pageId, selectedButton) {
+        document.querySelectorAll("#topicNav button").forEach(button => button.classList.remove("active"));
+        selectedButton.classList.add("active");
+        document.querySelectorAll("#pageView .feature-detail").forEach(page => page.classList.remove("active"));
+        document.getElementById(pageId).classList.add("active");
+        document.getElementById("dashboard").classList.toggle("topic-open", pageId !== "overview");
+        document.getElementById("pageView").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function openTool(selector) {
+        const overviewButton = document.querySelector("#topicNav button");
+        showPage("overview", overviewButton);
+        document.querySelector(selector).scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+
+    function focusPassword() { openTool("#password"); }
+    function focusSuggestions() { openTool("#suggestions"); }
+    function focusScore() { openTool(".score-row"); }
+    function focusGenerator() { openTool("#generatedPassword"); }
+
+    function showFeature(featureId, selectedStep) {
+        document.querySelectorAll(".map-step").forEach(step => {
+            step.classList.remove("active");
+        });
+
+        selectedStep.classList.add("active");
+        document.getElementById(featureId).scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+        });
+    }
+
+    const passwordInput =
+        document.getElementById("password");
+
+    function togglePassword() {
+
+        if(passwordInput.type === "password") {
+            passwordInput.type = "text";
+        } else {
+            passwordInput.type = "password";
+        }
+    }
+
+
+    function clearPassword() {
+
+        passwordInput.value = "";
+
+        analyzePassword();
+    }
+
+
+    function setCheck(id, condition) {
+
+        const element =
+            document.getElementById(id);
+
+        if(condition) {
+
+            element.textContent = "✅";
+            element.className = "pass";
+
+        } else {
+
+            element.textContent = "❌";
+            element.className = "fail";
+
+        }
+    }
+
+
+    function analyzePassword() {
+
+        const password =
+            passwordInput.value;
+
+        const length =
+            password.length >= 8;
+
+        const upper =
+            /[A-Z]/.test(password);
+
+        const lower =
+            /[a-z]/.test(password);
+
+        const number =
+            /[0-9]/.test(password);
+
+        const special =
+            /[^A-Za-z0-9]/.test(password);
+
+
+        setCheck("lengthCheck", length);
+        setCheck("upperCheck", upper);
+        setCheck("lowerCheck", lower);
+        setCheck("numberCheck", number);
+        setCheck("specialCheck", special);
+
+
+        let score = 0;
+
+        if(password.length >= 8)
+            score++;
+
+        if(password.length >= 12)
+            score++;
+
+        if(upper)
+            score++;
+
+        if(lower)
+            score++;
+
+        if(number)
+            score++;
+
+        if(special)
+            score++;
+
+
+        const meter =
+            document.getElementById("meterFill");
+
+        const strengthText =
+            document.getElementById("strengthText");
+
+        const riskLevel =
+            document.getElementById("riskLevel");
+
+        const suggestions =
+            document.getElementById("suggestions");
+
+
+        if(password.length === 0) {
+
+            meter.style.width = "0%";
+
+            strengthText.textContent =
+                "Enter Password";
+
+            riskLevel.textContent =
+                "UNKNOWN";
+
+            riskLevel.className = "";
+
+            suggestions.innerHTML =
+                `<div class="suggestion">
+                    Enter a password to start AI analysis.
+                </div>`;
+
+            return;
+        }
+
+
+        let percentage =
+            Math.min((score / 6) * 100, 100);
+
+        document.getElementById("scoreValue").textContent =
+            Math.round(percentage);
+
+        const scoreRow = document.querySelector(".score-row");
+        const scoreLabel = document.getElementById("scoreLabel");
+
+        scoreRow.className = "score-row";
+
+        if(password.length === 0 || score <= 2) {
+            scoreRow.classList.add("weak");
+            scoreLabel.textContent = "Weak password";
+        } else if(score <= 4) {
+            scoreRow.classList.add("medium");
+            scoreLabel.textContent = "Medium password";
+        } else {
+            scoreRow.classList.add("strong");
+            scoreLabel.textContent = "Strong password";
+        }
+
+        meter.style.width =
+            percentage + "%";
+
+
+        let strength = "";
+        let risk = "";
+        let riskClass = "";
+
+
+        if(score <= 2) {
+
+            strength = "Weak";
+            risk = "HIGH";
+            riskClass = "risk-high";
+
+        } else if(score <= 4) {
+
+            strength = "Medium";
+            risk = "MEDIUM";
+            riskClass = "risk-medium";
+
+        } else {
+
+            strength = "Strong";
+            risk = "LOW";
+            riskClass = "risk-low";
+        }
+
+
+        strengthText.textContent =
+            strength;
+
+        riskLevel.textContent =
+            risk;
+
+        riskLevel.className =
+            riskClass;
+
+
+        /* Suggestions */
+
+        let suggestionList = [];
+
+
+        if(password.length < 8) {
+
+            suggestionList.push(
+                "Use at least 8 characters."
+            );
+
+        }
+
+        if(password.length < 12) {
+
+            suggestionList.push(
+                "For better security, use 12+ characters."
+            );
+
+        }
+
+        if(!upper) {
+
+            suggestionList.push(
+                "Add at least one uppercase letter."
+            );
+
+        }
+
+        if(!lower) {
+
+            suggestionList.push(
+                "Add at least one lowercase letter."
+            );
+
+        }
+
+        if(!number) {
+
+            suggestionList.push(
+                "Add at least one number."
+            );
+
+        }
+
+        if(!special) {
+
+            suggestionList.push(
+                "Add a special character such as @, # or !."
+            );
+
+        }
+
+
+        /* Common password detection */
+
+        const commonPasswords = [
+            "123456",
+            "password",
+            "password123",
+            "12345678",
+            "qwerty",
+            "admin",
+            "admin123"
+        ];
+
+
+        if(commonPasswords.includes(
+            password.toLowerCase()
+        )) {
+
+            suggestionList.push(
+                "⚠️ This looks like a commonly used password."
+            );
+
+            risk = "HIGH";
+
+            riskLevel.textContent =
+                risk;
+
+            riskLevel.className =
+                "risk-high";
+        }
+
+
+        if(suggestionList.length === 0) {
+
+            suggestionList.push(
+                "✅ No obvious weakness detected."
+            );
+
+            suggestionList.push(
+                "Consider using a unique password for every account."
+            );
+        }
+
+
+        suggestions.innerHTML =
+            suggestionList
+                .map(item =>
+                    `<div class="suggestion">${item}</div>`
+                )
+                .join("");
+
+    }
+
+
+    /* PASSWORD GENERATOR */
+
+    function generatePassword() {
+
+        const chars =
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
+            "abcdefghijklmnopqrstuvwxyz" +
+            "0123456789" +
+            "!@#$%^&*()_+";
+
+
+        let password = "";
+
+        const length = 16;
+
+
+        for(let i = 0; i < length; i++) {
+
+            const randomIndex =
+                Math.floor(
+                    Math.random() * chars.length
+                );
+
+            password +=
+                chars[randomIndex];
+        }
+
+
+        document.getElementById(
+            "generatedPassword"
+        ).value = password;
+
+    }
+
+
+    /* COPY */
+
+    function copyPassword() {
+
+        const generated =
+            document.getElementById(
+                "generatedPassword"
+            );
+
+        if(generated.value === "") {
+
+            alert("Generate a password first.");
+
+            return;
+        }
+
+
+        navigator.clipboard.writeText(
+            generated.value
+        );
+
+        alert("Password copied!");
+    }
+
+</script>
+
+</body>
+</html>
+ 
